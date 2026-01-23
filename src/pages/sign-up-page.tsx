@@ -4,7 +4,7 @@ import { useSignUp } from "@/hooks/mutations/use-sign-up";
 import { useState } from "react";
 import { Link } from "react-router";
 
-export default function SignOutPage() {
+export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { mutate: signUp } = useSignUp();
