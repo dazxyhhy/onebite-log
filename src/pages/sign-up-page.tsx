@@ -3,19 +3,32 @@ import { Input } from "@/components/ui/input";
 import { useSignUp } from "@/hooks/mutations/use-sign-up";
 import { generateErrorMessage } from "@/lib/error";
 import { useState } from "react";
-import { Link } from "react-router";
+import { useNavigate, Link } from "react-router";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const { mutate: signUp, isPending: isSignUpPending } = useSignUp({
+    onSuccess: () => {
+      // 1. 성공 시 팝업 열기
+      setIsSuccessModalOpen(true);
+    },
     onError: (error) => {
       const message = generateErrorMessage(error);
-      toast.error(message, {
-        position: "top-center",
-      });
+      toast.error(message, { position: "top-center" });
     },
   });
 
@@ -27,6 +40,11 @@ export default function SignUpPage() {
       email,
       password,
     });
+  };
+
+  const handleModalConfirm = () => {
+    setIsSuccessModalOpen(false);
+    navigate("/sign-in");
   };
 
   return (
@@ -63,6 +81,30 @@ export default function SignUpPage() {
         <Link className="text-muted-foreground hover:underline" to={"/sign-in"}>
           이미 계정이 있다면? 로그인
         </Link>
+        {/* 성공 안내 팝업 (AlertDialog) */}
+        <AlertDialog
+          open={isSuccessModalOpen}
+          onOpenChange={setIsSuccessModalOpen}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>회원가입 완료! 🎉</AlertDialogTitle>
+              <AlertDialogDescription>
+                반가워요! 회원가입이 성공적으로 완료되었습니다.
+                <br />
+                이제 방금 만드신 계정으로 로그인을 진행해 주세요.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction
+                onClick={handleModalConfirm}
+                className="w-full"
+              >
+                로그인하러 가기
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
